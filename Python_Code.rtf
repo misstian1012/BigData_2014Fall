@@ -1,0 +1,120 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1343\cocoasubrtf160
+{\fonttbl\f0\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\tx5809\pardeftab720\ri720
+
+\f0\fs20 \cf0 # Load and pre-process the datasets\
+\
+import numpy as np\
+\
+price = np.genfromtxt('price-over-month.csv', delimiter = ',')\
+\
+demand= np.genfromtxt('Load_prediction.csv', delimiter = ',')\
+\
+x = price[0,1:11]\
+y1 = price[1,1:11]\
+y2 = price[2,1:11]\
+y3 = price[3,1:11]\
+y4 = price[4,1:11]\
+y5 = price[5,1:11]\
+y6 = price[6,1:11]\
+y7 = price[7,1:11]\
+y8 = price[8,1:11]\
+y9 = price[9,1:11]\
+y10 = price[10,1:11]\
+y11 = price[11,1:11]\
+y12 = price[12,1:11]\
+\
+z1 = np.polyfit(x, y1, 3)\
+z2 = np.polyfit(x, y2, 3)\
+z3 = np.polyfit(x, y3, 3)\
+z4 = np.polyfit(x, y4, 3)\
+z5 = np.polyfit(x, y5, 3)\
+z6 = np.polyfit(x, y6, 3)\
+z7 = np.polyfit(x, y7, 3)\
+z8 = np.polyfit(x, y8, 3)\
+z9 = np.polyfit(x, y9, 3)\
+z10 = np.polyfit(x, y10, 3)\
+z11 = np.polyfit(x, y11, 3)\
+z12 = np.polyfit(x, y12, 3)\
+\
+z = np.concatenate((z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12)).reshape((12,4))\
+\
+#Create user interface\
+def input_year():\
+    \
+    year = raw_input('Please enter a year between 2015-2017:')\
+    \
+    if int(year) < 2015 or int(year) > 2017:\
+        print 'Invalid input.'\
+        year = input_year()\
+    else:\
+        return year\
+    \
+    return year\
+    \
+\
+def input_month():\
+    \
+    month = raw_input('Please enter a month in number(MM):')  \
+    \
+    if int(month) < 1 or int(month) > 12: \
+        print 'Invalid input.'\
+        month = input_month()\
+    else:\
+        return month\
+   \
+    return month\
+\
+#Design bill estimator and load planar\
+\
+def bill_estimator():\
+    yr = int(input_year())\
+    mon = int(input_month())\
+   \
+    load_col = int(yr)-2011\
+    load_row = int(mon)\
+    est_load = demand[load_row,load_col]\
+    print ('Your estimated monthly electricity consumption is %f kilowatt-hour (kWh).' % est_load)\
+    \
+    z_row = load_row - 1\
+    est_price = np.poly1d(z[z_row])(yr)\
+    est_cost = est_price * est_load *0.01\
+    print ('Your estimated monthly electicity bill is $%f.' % est_cost)\
+    \
+    return est_cost\
+\
+def load_planar():\
+    yr = int(input_year())\
+    mon = int(input_month())\
+   \
+    load_col = int(yr)-2011\
+    load_row = int(mon)\
+    est_load = demand[load_row,load_col]\
+    \
+    z_row = load_row - 1\
+    est_price = np.poly1d(z[z_row])(yr)\
+    est_cost = est_price * est_load *0.01\
+    \
+    ref = est_cost\
+    budget = float(raw_input('Please enter your monthly budget for electricity:$'))\
+    ratio = float(budget/ref)\
+    \
+    \
+    if ratio < 1 :\
+        less = (1-ratio)*100\
+        print ('\\nTight budget! Need to cut down %f%% of regular usage.'% less)\
+        cut = (1-ratio)*est_load\
+        print ('\\nThat said, you need to try hard to cut down %f kWh of electricity' % cut)\
+        print '\\nPlesase refer to the list below to plan your monthly electricity usage.'\
+        \
+    else: \
+        print '\\nSufficient budget! No daily actvity should be affected. But please save energy!'\
+        save = (ratio-1)*est_load\
+        print ('\\nPlease try to save %f kwh electricity if you can. Thanks!' % save)\
+        \
+    print '\\nSuggested power(watts) of common appliance: \\n Coffee Maker:900-1200W \\n Washer:350-500W \\n Dryer:1800-5000W'\
+    print ' Dishwasher:1200-2400W \\n Hair Dryer:1200-1875W \\n Clothes Iron:1000-1800W \\n Microwave:750-1100W'\
+}
